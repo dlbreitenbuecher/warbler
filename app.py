@@ -7,7 +7,7 @@ from sqlalchemy.exc import IntegrityError
 from forms import UserAddForm, LoginForm, MessageForm
 from models import db, connect_db, User, Message
 
-CURR_USER_KEY = "curr_user"
+CURR_USER_KEY = "curr_user"  # value: user.id
 
 app = Flask(__name__)
 
@@ -32,6 +32,11 @@ connect_db(app)
 @app.before_request
 def add_user_to_g():
     """If we're logged in, add curr user to Flask global."""
+    # global data within a part context
+    # what is g doing? {user: user_instance}
+    # global dictionary store user instance info
+
+    #runs before every single request
 
     if CURR_USER_KEY in session:
         g.user = User.query.get(session[CURR_USER_KEY])
@@ -48,7 +53,7 @@ def do_login(user):
 
 def do_logout():
     """Logout user."""
-
+    #TODO. fix vw func
     if CURR_USER_KEY in session:
         del session[CURR_USER_KEY]
 
@@ -64,6 +69,7 @@ def signup():
     If the there already is a user with that username: flash message
     and re-present form.
     """
+
 
     form = UserAddForm()
 
@@ -112,8 +118,12 @@ def login():
 @app.route('/logout')
 def logout():
     """Handle logout of user."""
+    
+    session.pop(CURR_USER_KEY)
 
-    # IMPLEMENT THIS
+    flash(f"Successful log out!", "success")
+
+    return redirect("/login")
 
 
 ##############################################################################
@@ -209,7 +219,7 @@ def profile():
 @app.route('/users/delete', methods=["POST"])
 def delete_user():
     """Delete user."""
-
+    #todo use deleteform()
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")

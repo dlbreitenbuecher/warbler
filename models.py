@@ -73,7 +73,7 @@ class User(db.Model):
     )
 
     messages = db.relationship('Message', order_by='Message.timestamp.desc()')
-
+   
     followers = db.relationship(
         "User",
         secondary="follows",
