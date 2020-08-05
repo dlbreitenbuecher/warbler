@@ -31,6 +31,9 @@ connect_db(app)
 
 @app.before_request
 def add_user_to_g():
+    # import pdb; pdb.set_trace()
+
+    print('session', session)
     """If we're logged in, add curr user to Flask global."""
     # global data within a part context
     # what is g doing? {user: user_instance}
@@ -53,7 +56,7 @@ def do_login(user):
 
 def do_logout():
     """Logout user."""
-    #TODO. fix vw func
+
     if CURR_USER_KEY in session:
         del session[CURR_USER_KEY]
 
@@ -120,7 +123,7 @@ def login():
 def logout():
     """Handle logout of user."""
     
-    session.pop(CURR_USER_KEY)
+    do_logout()
 
     flash(f"Successful log out!", "success")
 
@@ -317,10 +320,19 @@ def homepage():
     - anon users: no messages
     - logged in: 100 most recent messages of followed_users
     """
+    
+    # user = User.query.get(g.user)
+    # print('g.user', User.query.get(g.user.id))
+    # print('followers', user.following)
+
+    
 
     if g.user:
+        following_id = [user.id for user in g.user.following]
+
         messages = (Message
                     .query
+                    .filter(Message.user_id.in_(following_id))
                     .order_by(Message.timestamp.desc())
                     .limit(100)
                     .all())
