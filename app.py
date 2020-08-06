@@ -4,8 +4,8 @@ from flask import Flask, render_template, request, flash, redirect, session, g
 from flask_debugtoolbar import DebugToolbarExtension
 from sqlalchemy.exc import IntegrityError
 
-from forms import UserAddForm, LoginForm, MessageForm, EditUserForm
-from models import db, connect_db, User, Message
+from forms import UserAddForm, LoginForm, MessageForm, EditUserForm, TokenForm
+from models import db, connect_db, User, Message, LikedMessage
 
 CURR_USER_KEY = "curr_user"  # value: user.id
 
@@ -325,7 +325,7 @@ def homepage():
     # print('g.user', User.query.get(g.user.id))
     # print('followers', user.following)
 
-    
+    form = TokenForm()
 
     if g.user:
         following_id = [user.id for user in g.user.following]
@@ -337,11 +337,36 @@ def homepage():
                     .limit(100)
                     .all())
 
-        return render_template('home.html', messages=messages)
+        return render_template('home.html', messages=messages, form=form)
 
     else:
         return render_template('home-anon.html')
 
+@app.route('/users/<int:msg_id>/like', methods=['POST'])
+def like_message(msg_id):
+    ''' Handle user liking a message. Adds user id and msg id to liked_messages table.
+    Redirects to homepage'''
+    # Authenticate user
+    # add user id and message id to LikedMessages
+    # commit
+    # redirect to homepage ('/')
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    form = TokenForm()
+
+    if form.validate_on_submit():
+        # message_id_liked = msg_id
+        # user_id_like = g.user.id
+        liked_msg = LikedMessage(user_id_like=g.user.id, message_id_liked=msg_id)
+        db.session.add(liked_msg)
+        db.session.commit()
+
+        return redirect("/")
+
+    return render_template('/', form=form)
 
 ##############################################################################
 # Turn off all caching in Flask

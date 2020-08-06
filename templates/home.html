@@ -44,6 +44,7 @@
       </div>
     </aside>
 
+    <!-- List of followed user messages -->
     <div class="col-lg-6 col-md-8 col-sm-12">
       <ul class="list-group" id="messages">
         {% for msg in messages %}
@@ -58,6 +59,24 @@
               <p>{{ msg.text }}</p>
             </div>
           </li>
+
+          <!-- like message TODO: Turn into WTForm-->
+          <!-- TODO - Figure out how to get this inside main message card -->
+          <li class="list-group-item">
+    
+            <form action="/users/{{ msg.id }}/like" method="POST" id="token_form">
+              {{ form.hidden_tag() }}
+    
+              {% for field in form if field.widget.input_type != 'hidden' %}
+                {% for error in field.errors %}
+                  <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+                {{ field(placeholder=field.label.text, class="form-control") }}
+              {% endfor %}
+              <button><i class="far fa-star"></i></button>
+            </form>
+          </li>
+
         {% endfor %}
       </ul>
     </div>

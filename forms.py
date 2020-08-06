@@ -35,4 +35,7 @@ class EditUserForm(FlaskForm):
     bio = StringField('Bio')
     password = PasswordField('Password', validators=[Length(min=6)])
 
+class TokenForm(FlaskForm):
+    '''Empty form used to get a CSRF token'''
+    
 #TODO - add delete form to get csrf token
