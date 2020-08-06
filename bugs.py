@@ -13,6 +13,8 @@
 <a href="/messages/{{ msg.id }}" class="message-link"/>
 
 
+#bug: when click on a user's followers, error: user not define!
+
 
 
 

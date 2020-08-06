@@ -73,7 +73,6 @@ def signup():
     and re-present form.
     """
 
-
     form = UserAddForm()
 
     if form.validate_on_submit():
@@ -181,6 +180,21 @@ def users_followers(user_id):
 
     user = User.query.get_or_404(user_id)
     return render_template('users/followers.html', user=user)
+
+
+@app.route("/users/<int:user_id>/likes")
+def user_likes(user_id):
+    """Show user's liked messages."""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    #ask about get_or_404
+    messages = g.user.likes
+
+    return render_template('users/likes.html', messages=messages)
+
 
 
 @app.route('/users/follow/<int:follow_id>', methods=['POST'])
@@ -350,23 +364,26 @@ def like_message(msg_id):
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
-
-    form = TokenForm()
-
+        
+    
     if form.validate_on_submit():
-        try:
-            liked_msg = LikedMessage(user_id_like=g.user.id, 
-                                    message_id_liked=msg_id)
-            db.session.add(liked_msg)
+        message = Message.query.get(msg_id)
+        user = g.user
+        #user.likes is an array of the all the message this user likes
+        if message in user.likes:
+            user.likes.remove(message) #move message id form their user message id [])
             db.session.commit()
-            return redirect("/")
-# TODO Fix error
-        except IntegrityError:
-            db.session.delete(liked_msg)
-            db.commit()
-            return render_template('/')
+        else:
+            user.likes.append(message) #what message id is if it's in there)
+            db.session.commit()
 
-    return render_template('/', form=form)
+        return redirect("/")   
+
+    else: 
+        return render_template('home.html', form=form)
+
+
+
 
 ##############################################################################
 # Turn off all caching in Flask
