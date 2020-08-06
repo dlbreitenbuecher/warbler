@@ -37,5 +37,6 @@ class EditUserForm(FlaskForm):
 
 class TokenForm(FlaskForm):
     '''Empty form used to get a CSRF token'''
-    
+    # hidden field for goto -when instance of form is made, set value of GOTO then
+
 #TODO - add delete form to get csrf token

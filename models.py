@@ -88,7 +88,7 @@ class User(db.Model):
         secondaryjoin=(Follows.user_being_followed_id == id)
     )
 
-    likes = db.relationship('Message',
+    message_likes = db.relationship('Message',
                             secondary='liked_messages',
                             backref='user_likes')
 
@@ -106,6 +106,8 @@ class User(db.Model):
 
         found_user_list = [user for user in self.following if user == other_user]
         return len(found_user_list) == 1
+
+    # def 
 
     @classmethod
     def signup(cls, username, email, password, image_url):
@@ -193,6 +195,7 @@ class LikedMessage(db.Model):
 
     message_id_liked = db.Column(
         db.Integer,
+        # TODO review cascade
         db.ForeignKey('messages.id', ondelete="cascade"),
         primary_key=True,
     )

@@ -153,9 +153,14 @@ def list_users():
 def users_show(user_id):
     """Show user profile."""
 
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+    
     user = User.query.get_or_404(user_id)
+    form = TokenForm()
 
-    return render_template('users/show.html', user=user)
+    return render_template('users/show.html', user=user, form=form)
 
 
 @app.route('/users/<int:user_id>/following')
@@ -165,9 +170,10 @@ def show_following(user_id):
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
-
+    
+    form = TokenForm()
     user = User.query.get_or_404(user_id)
-    return render_template('users/following.html', user=user)
+    return render_template('users/following.html', user=user, form=form)
 
 
 @app.route('/users/<int:user_id>/followers')
@@ -178,8 +184,9 @@ def users_followers(user_id):
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
+    form = TokenForm()
     user = User.query.get_or_404(user_id)
-    return render_template('users/followers.html', user=user)
+    return render_template('users/followers.html', user=user, form=form)
 
 
 @app.route("/users/<int:user_id>/likes")
@@ -190,10 +197,12 @@ def user_likes(user_id):
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-    #ask about get_or_404
-    messages = g.user.likes
+    form = TokenForm()
+    
+    user = User.query.get_or_404(user_id)
+    messages = user.message_likes
 
-    return render_template('users/likes.html', messages=messages)
+    return render_template('users/likes.html', messages=messages, form=form)
 
 
 
@@ -261,17 +270,20 @@ def profile():
 @app.route('/users/delete', methods=["POST"])
 def delete_user():
     """Delete user."""
-    #todo use deleteform()
+    #TODO use deleteform()
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
 
-    do_logout()
+    form = TokenForm()
 
-    db.session.delete(g.user)
-    db.session.commit()
+    if form.validate_on_submit():
+        do_logout()
 
-    return redirect("/signup")
+        db.session.delete(g.user)
+        db.session.commit()
+
+    return redirect("/signup", form=form)
 
 
 ##############################################################################
@@ -357,8 +369,11 @@ def homepage():
 
 
 @app.route('/users/<int:msg_id>/like', methods=['POST'])
-def like_message(msg_id):
-    ''' Handle user liking a message. Adds user id and msg id to liked_messages table.
+def like_or_unlike_message(msg_id):
+    ''' Handle user liking or unliking a message. Adds user id and msg id to
+    liked_messages table if messages is liked. Removes relevant record 
+    if message is unliked. 
+    
     Redirects to homepage'''
 
     if not g.user:
@@ -371,11 +386,11 @@ def like_message(msg_id):
         message = Message.query.get(msg_id)
         user = g.user
         #user.likes is an array of the all the message this user likes
-        if message in user.likes:
-            user.likes.remove(message) #move message id form their user message id [])
+        if message in user.message_likes:
+            user.message_likes.remove(message) #move message id form their user message id [])
             db.session.commit()
         else:
-            user.likes.append(message) #what message id is if it's in there)
+            user.message_likes.append(message) #what message id is if it's in there)
             db.session.commit()
 
         return redirect("/")   
