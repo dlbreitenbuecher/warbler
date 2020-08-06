@@ -10,8 +10,8 @@
 # install email_validator
 
 #home.html bug
-<a href="/messages/{{ msg.id }}" class="message-link"/>
-
+# <a href="/messages/{{ msg.id }}" class="message-link"/>
+# (tag wasn't closed)
 
 #bug: when click on a user's followers, error: user not define!
 

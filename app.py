@@ -364,7 +364,8 @@ def like_message(msg_id):
     if not g.user:
         flash("Access unauthorized.", "danger")
         return redirect("/")
-        
+    
+    form = TokenForm()
     
     if form.validate_on_submit():
         message = Message.query.get(msg_id)
