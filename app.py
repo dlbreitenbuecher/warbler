@@ -338,18 +338,14 @@ def homepage():
                     .all())
 
         return render_template('home.html', messages=messages, form=form)
+    
+    return render_template('home-anon.html')
 
-    else:
-        return render_template('home-anon.html')
 
 @app.route('/users/<int:msg_id>/like', methods=['POST'])
 def like_message(msg_id):
     ''' Handle user liking a message. Adds user id and msg id to liked_messages table.
     Redirects to homepage'''
-    # Authenticate user
-    # add user id and message id to LikedMessages
-    # commit
-    # redirect to homepage ('/')
 
     if not g.user:
         flash("Access unauthorized.", "danger")
@@ -358,13 +354,17 @@ def like_message(msg_id):
     form = TokenForm()
 
     if form.validate_on_submit():
-        # message_id_liked = msg_id
-        # user_id_like = g.user.id
-        liked_msg = LikedMessage(user_id_like=g.user.id, message_id_liked=msg_id)
-        db.session.add(liked_msg)
-        db.session.commit()
-
-        return redirect("/")
+        try:
+            liked_msg = LikedMessage(user_id_like=g.user.id, 
+                                    message_id_liked=msg_id)
+            db.session.add(liked_msg)
+            db.session.commit()
+            return redirect("/")
+# TODO Fix error
+        except IntegrityError:
+            db.session.delete(liked_msg)
+            db.commit()
+            return render_template('/')
 
     return render_template('/', form=form)
 

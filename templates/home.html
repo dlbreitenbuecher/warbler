@@ -49,7 +49,8 @@
       <ul class="list-group" id="messages">
         {% for msg in messages %}
           <li class="list-group-item">
-            <a href="/messages/{{ msg.id }}" class="message-link">
+            <!-- This link is not closed - causes our form button to not register -->
+            <!-- <a href="/messages/{{ msg.id }}" class="message-link">  -->
             <a href="/users/{{ msg.user.id }}">
               <img src="{{ msg.user.image_url }}" alt="" class="timeline-image">
             </a>
@@ -57,25 +58,25 @@
               <a href="/users/{{ msg.user.id }}">@{{ msg.user.username }}</a>
               <span class="text-muted">{{ msg.timestamp.strftime('%d %B %Y') }}</span>
               <p>{{ msg.text }}</p>
+            </a>
+
+              <form action="/users/{{ msg.id }}/like" method="POST" id="token_form">
+                {{ form.hidden_tag() }}
+                <button style="all:unset; cursor: pointer"><i class="far fa-star"></i></button>
+              </form>
+
             </div>
           </li>
 
           <!-- like message TODO: Turn into WTForm-->
           <!-- TODO - Figure out how to get this inside main message card -->
-          <li class="list-group-item">
+          <!-- <li class="list-group-item">
     
             <form action="/users/{{ msg.id }}/like" method="POST" id="token_form">
               {{ form.hidden_tag() }}
-    
-              {% for field in form if field.widget.input_type != 'hidden' %}
-                {% for error in field.errors %}
-                  <span class="text-danger">{{ error }}</span>
-                {% endfor %}
-                {{ field(placeholder=field.label.text, class="form-control") }}
-              {% endfor %}
               <button><i class="far fa-star"></i></button>
             </form>
-          </li>
+          </li> -->
 
         {% endfor %}
       </ul>
