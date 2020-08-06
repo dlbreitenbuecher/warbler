@@ -25,8 +25,17 @@ from app import app
 # once for all tests --- in each test, we'll delete the data
 # and create fresh new clean test data
 
+app.config['TESTING'] = True
+
+db.drop_all()
+
 db.create_all()
 
+USER_1 = User(
+            email="test@test.com",
+            username="testuser",
+            password="HASHED_PASSWORD"
+        )
 
 class UserModelTestCase(TestCase):
     """Test views for messages."""
@@ -38,20 +47,30 @@ class UserModelTestCase(TestCase):
         Message.query.delete()
         Follows.query.delete()
 
+        user = USER_1
+        db.session.add(user)
+        db.session.commit()
+
         self.client = app.test_client()
+
+    def tearDown(self):
+        """Clean up fouled transactions."""
+
+        db.session.rollback()
 
     def test_user_model(self):
         """Does basic model work?"""
 
-        u = User(
-            email="test@test.com",
-            username="testuser",
-            password="HASHED_PASSWORD"
-        )
-
-        db.session.add(u)
-        db.session.commit()
-
         # User should have no messages & no followers
-        self.assertEqual(len(u.messages), 0)
-        self.assertEqual(len(u.followers), 0)
+        self.assertEqual(len(USER_1.messages), 0)
+        self.assertEqual(len(USER_1.followers), 0)
+
+    def test_user_repr(self):
+        '''Does the __repr__ method work?'''
+
+        self.assertIsInstance(USER_1.id, int)
+        del USER_1.id
+
+        self.assertEqual(user, "<User #1: testuser, test@test.com>")
+
+        # f"<User #{self.id}: {self.username}, {self.email}>"
