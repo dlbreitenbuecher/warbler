@@ -124,9 +124,11 @@ class UserModelTestCase(TestCase):
                                         password="HASHED_PASSWORD1", 
                                         image_url=""), 
                                 User)
-        self.assertRaises(ValueError, User.signup(username="", 
-                                        email="", 
-                                        password="", 
-                                        image_url=""))
+
+        with self.assertRaises(ValueError):
+            User.signup(username="", 
+                        email="", 
+                        password="", 
+                        image_url="")
 
 
