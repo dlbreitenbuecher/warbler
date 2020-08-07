@@ -387,10 +387,10 @@ def like_or_unlike_message(msg_id):
         user = g.user
         #user.likes is an array of the all the message this user likes
         if message in user.message_likes:
-            user.message_likes.remove(message) #move message id form their user message id [])
+            user.message_likes.remove(message) #remove message id from their user's liked message id [])
             db.session.commit()
         else:
-            user.message_likes.append(message) #what message id is if it's in there)
+            user.message_likes.append(message) #add liked messages to user's liked message list
             db.session.commit()
 
         return redirect("/")   
