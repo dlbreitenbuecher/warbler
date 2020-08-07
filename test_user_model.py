@@ -9,6 +9,7 @@ import os
 from unittest import TestCase
 
 from models import db, User, Message, Follows
+from flask_bcrypt import Bcrypt
 
 # BEFORE we import our app, let's set an environmental variable
 # to use a different database for tests (we need to do this
@@ -30,6 +31,8 @@ app.config['TESTING'] = True
 db.drop_all()
 db.create_all()
 
+bcrypt = Bcrypt()
+
 
 class UserModelTestCase(TestCase):
     """Test views for messages."""
@@ -41,12 +44,19 @@ class UserModelTestCase(TestCase):
         Message.query.delete()
         Follows.query.delete()
 
+        # Hashed password for user
+        hashed_password = bcrypt.generate_password_hash('HASHED_PASSWORD').decode('UTF-8')
+
         user = User(
             email="test@test.com",
             username="testuser",
-            password="HASHED_PASSWORD",
+            password=hashed_password,
             location="SF"
         )
+
+        # Hashed password for user
+        hashed_password1 = bcrypt.generate_password_hash('HASHED_PASSWORD1').decode('UTF-8')
+
         user1 = User(
             email="test1@test.com",
             username="testuser1",
@@ -59,11 +69,7 @@ class UserModelTestCase(TestCase):
             password="HASHED_PASSWORD1",
             location="NY"
         )
-        db.session.add(user)
-        db.session.commit()
-        db.session.add(user1)
-        db.session.commit()
-        db.session.add(user2)
+        db.session.add_all([user, user1, user2])
         db.session.commit()
 
         self.user = user
@@ -71,6 +77,7 @@ class UserModelTestCase(TestCase):
         self.user2 = user2
         self.client = app.test_client()
 
+        # self.user follows self.user1
         self.user1.followers.append(self.user)
         #make file to test user model, test likes.py
         #make helper functions
@@ -101,7 +108,6 @@ class UserModelTestCase(TestCase):
 
     def test_is_following(self):
         """Does _is_following method work?"""
-        # is_following(self, other_user):
 
         self.assertTrue(User.is_following(self.user, self.user1))
         self.assertFalse(User.is_following(self.user1, self.user))
@@ -131,4 +137,22 @@ class UserModelTestCase(TestCase):
                         password="", 
                         image_url="")
 
+    def test_authenticate(self):
+        '''Does User.authenticate return a user when a valid username and password
+        are inputed'''
 
+        self.assertIsInstance(User.authenticate(username='testuser', 
+                                                password='HASHED_PASSWORD'),
+                                User)
+
+        # Invalid password
+        self.assertFalse(User.authenticate(username='testuser', 
+                                            password='HASHED_PASSWORD1'))
+
+        self.assertEqual(User.authenticate(username='testuser', 
+                                                password='HASHED_PASSWORD'), 
+                                                self.user)
+
+        # Invalid username
+        self.assertFalse(User.authenticate(username='frank123', 
+                                    password='HASHED_PASSWORD'))

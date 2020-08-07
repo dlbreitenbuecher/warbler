@@ -172,6 +172,7 @@ class Message(db.Model):
 
     user_id = db.Column(
         db.Integer,
+        # If a referenced use is deleted, all user's messages are deleted first
         db.ForeignKey('users.id', ondelete='CASCADE'),
         nullable=False,
     )

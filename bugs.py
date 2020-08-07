@@ -16,7 +16,7 @@
 #bug: when click on a user's followers, error: user not define!
 
 
-
+# Fixed Edit Profile and Delete Profile buttons (difficult to click) on user details page
 
 
 

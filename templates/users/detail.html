@@ -38,8 +38,8 @@
             </li>
             <div class="ml-auto">
               {% if g.user.id == user.id %}
-                <a href="/users/profile" class="btn btn-outline-secondary">Edit Profile</a>
-                <form method="POST" action="/users/delete" class="form-inline">
+                <a href="/users/profile" class="btn btn-outline-secondary" style="position: relative; z-index: 10;">Edit Profile</a>
+                <form method="POST" action="/users/delete" class="form-inline" style="position: relative; z-index: 10;">
                   {{ form.hidden_tag() }}
                   <button class="btn btn-outline-danger ml-2">Delete Profile</button>
                 </form>
